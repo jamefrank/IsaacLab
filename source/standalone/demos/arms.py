@@ -95,6 +95,22 @@ def design_scene() -> tuple[dict, list[list[float]]]:
     franka_arm_cfg.init_state.pos = (0.0, 0.0, 1.05)
     franka_panda = Articulation(cfg=franka_arm_cfg)
 
+    from omni.isaac.lab.assets import RigidObjectCfg, RigidObject
+    cube_cfg = RigidObjectCfg(
+        # prim_path="{ENV_REGEX_NS}/cube",
+        prim_path="/World/Origin1/Cube",
+        spawn=sim_utils.CuboidCfg(
+            size=(0.05, 0.05, 0.05),
+            rigid_props=sim_utils.RigidBodyPropertiesCfg(max_depenetration_velocity=1.0),
+            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            collision_props=sim_utils.CollisionPropertiesCfg(),
+            physics_material=sim_utils.RigidBodyMaterialCfg(),
+            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(1.0, 0.0, 0.0)),
+        ),
+        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.5, 0.0, 1.5)),  # TODO
+    )
+    cube = RigidObject(cfg=cube_cfg)
+
     # Origin 2 with UR10
     prim_utils.create_prim("/World/Origin2", "Xform", translation=origins[1])
     # -- Table
@@ -151,7 +167,7 @@ def design_scene() -> tuple[dict, list[list[float]]]:
 
     # return the scene information
     scene_entities = {
-        "franka_panda": franka_panda,
+        # "franka_panda": franka_panda,
         "ur10": ur10,
         "kinova_j2n7s300": kinova_j2n7s300,
         "kinova_j2n6s300": kinova_j2n6s300,
@@ -169,42 +185,43 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
     count = 0
     # Simulate physics
     while simulation_app.is_running():
-        # reset
-        if count % 200 == 0:
-            # reset counters
-            sim_time = 0.0
-            count = 0
-            # reset the scene entities
-            for index, robot in enumerate(entities.values()):
-                # root state
-                root_state = robot.data.default_root_state.clone()
-                root_state[:, :3] += origins[index]
-                robot.write_root_state_to_sim(root_state)
-                # set joint positions
-                joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
-                robot.write_joint_state_to_sim(joint_pos, joint_vel)
-                # clear internal buffers
-                robot.reset()
-            print("[INFO]: Resetting robots state...")
-        # apply random actions to the robots
-        for robot in entities.values():
-            # generate random joint positions
-            joint_pos_target = robot.data.default_joint_pos + torch.randn_like(robot.data.joint_pos) * 0.1
-            joint_pos_target = joint_pos_target.clamp_(
-                robot.data.soft_joint_pos_limits[..., 0], robot.data.soft_joint_pos_limits[..., 1]
-            )
-            # apply action to the robot
-            robot.set_joint_position_target(joint_pos_target)
-            # write data to sim
-            robot.write_data_to_sim()
-        # perform step
-        sim.step()
-        # update sim-time
-        sim_time += sim_dt
         count += 1
-        # update buffers
-        for robot in entities.values():
-            robot.update(sim_dt)
+        # # reset
+        # if count % 200 == 0:
+        #     # reset counters
+        #     sim_time = 0.0
+        #     count = 0
+        #     # reset the scene entities
+        #     for index, robot in enumerate(entities.values()):
+        #         # root state
+        #         root_state = robot.data.default_root_state.clone()
+        #         root_state[:, :3] += origins[index]
+        #         robot.write_root_state_to_sim(root_state)
+        #         # set joint positions
+        #         joint_pos, joint_vel = robot.data.default_joint_pos.clone(), robot.data.default_joint_vel.clone()
+        #         robot.write_joint_state_to_sim(joint_pos, joint_vel)
+        #         # clear internal buffers
+        #         robot.reset()
+        #     print("[INFO]: Resetting robots state...")
+        # # apply random actions to the robots
+        # for robot in entities.values():
+        #     # generate random joint positions
+        #     joint_pos_target = robot.data.default_joint_pos + torch.randn_like(robot.data.joint_pos) * 0.1
+        #     joint_pos_target = joint_pos_target.clamp_(
+        #         robot.data.soft_joint_pos_limits[..., 0], robot.data.soft_joint_pos_limits[..., 1]
+        #     )
+        #     # apply action to the robot
+        #     robot.set_joint_position_target(joint_pos_target)
+        #     # write data to sim
+        #     robot.write_data_to_sim()
+        # # perform step
+        sim.step()
+        # # update sim-time
+        # sim_time += sim_dt
+        # count += 1
+        # # update buffers
+        # for robot in entities.values():
+        #     robot.update(sim_dt)
 
 
 def main():
