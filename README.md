@@ -12,7 +12,6 @@
 [![docs status](https://img.shields.io/github/actions/workflow/status/isaac-sim/IsaacLab/docs.yaml?label=docs&color=brightgreen)](https://github.com/isaac-sim/IsaacLab/actions/workflows/docs.yaml)
 [![License](https://img.shields.io/badge/license-BSD--3-yellow.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-
 **Isaac Lab** is a unified and modular framework for robot learning that aims to simplify common workflows
 in robotics research (such as RL, learning from demonstrations, and motion planning). It is built upon
 [NVIDIA Isaac Sim](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html) to leverage the latest
@@ -60,3 +59,5 @@ Isaac Lab development initiated from the [Orbit](https://isaac-orbit.github.io/)
    doi={10.1109/LRA.2023.3270034}
 }
 ```
+
+# tips
